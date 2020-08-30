@@ -2,7 +2,7 @@
 
 Use this script to decide when (short term or long term capital gains) and in what state (different tax rates) you should sell your initial public offering (IPO) shares.
 
-The decision depends on tax rates, return rates on your IPO shares and other investments, and the costs to move to the new state. The script outputs the optimal financial decision giving the combination of all these factors.
+The decision depends on tax rates, return rates on your IPO shares and other investments, and the costs to move to the new state. The script outputs the optimal financial decision given the combination of all these factors.
 
 I've included the current (2020) tax rates for California (high tax) and Nevada (low tax) and current federal short and long term capital gains tax rates and marginal income tax rate.
 
@@ -11,6 +11,7 @@ I've included the current (2020) tax rates for California (high tax) and Nevada 
 - The script assumes you are picking between selling your shares 6 months after IPO (likely after of a lockup period) or after 12 months (to get long term capital gains rates). If it recommends selling at 6 months, it assumes you use those proceeds to invest in something else that gets a return over the remaining 6 months. It then assumes you sell this investment at the end of the remaining 6 months at short term capital gains rates.
 - `Moving Cost` is a key parameter -- the higher this cost, the more likely you should stay put. It doesn't have to only represent moving expenses. You can also think of it as the minimum amount of money or taxes saved it would take to get you to move.
 - There's a known bug in calculating the taxes when there market has negative returns. It affects the return number the script spits out, but it doesn't affect the decision.
+- The rates of return that you input are NOT annualized -- they are the returns you see over the 6 months periods. So, if you have a 2% return in both the first and second halves of the year, that's an annualized return of 4%.
 
 ## Setup
 
@@ -47,6 +48,16 @@ optional arguments:
                         selling your shares and investing elsewhere
                         
 ````
+
+## Output
+
+The script will produce two tab-separated files. The `heatmap.tsv` is likely the more interesting one:
+
+![Heatmap of Decisions](https://github.com/robjailall/ipo_decision_calculator/blob/master/sample_heatmap_output.png?raw=true)
+
+This google spreadsheet uses conditional formatting to highlight the different decisions. The numbers in the table body are the total amount of money after all taxes you'l have left at the end of the year. Each cell also has the decision for that situation (these are hidden in the screenshot).
+
+For example, if your IPO shares appreciate 6% in the first six months and 7% in the second six months, the script recommends (dark green) you stay in your current state but sell you shares after 12 months to get the long term tax rates.
 
 ## Customization
 
