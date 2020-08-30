@@ -4,7 +4,7 @@ Use this script to decide when (short term or long term capital gains) and in wh
 
 The decision depends on tax rates, return rates on your IPO shares and other investments, and the costs to move to the new state. The script outputs the optimal financial decision given the combination of all these factors.
 
-I've included the current (2020) tax rates for California (high tax) and Nevada (low tax) and current federal short and long term capital gains tax rates and marginal income tax rate.
+I've included the current (2020) tax rates for California (high tax) and Nevada (low tax) and current federal short and long term capital gains tax rates and RSU withholding rate.
 
 ## Notes
 

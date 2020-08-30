@@ -3,13 +3,13 @@ import pytest
 
 
 def _create_inputs():
-    return dict(marginal_ordinary_income_tax_rate=.0,
-                current_state_ltcg_rate=.1,
-                current_state_stcg_rate=.1,
-                new_state_ltcg_rate=.1,
-                new_state_stcg_rate=.1,
-                federal_ltcg_rate=0,
-                federal_stcg_rate=0,
+    return dict(rsu_witholding_rate=.0,
+                current_state_ltcg_tax_rate=.1,
+                current_state_stcg_tax_rate=.1,
+                new_state_ltcg_tax_rate=.1,
+                new_state_stcg_tax_rate=.1,
+                federal_ltcg_tax_rate=0,
+                federal_stcg_tax_rate=0,
                 share_basis_price=10,
                 pre_tax_num_shares=10,
                 alternate_investment_rate_of_return=1.1,
@@ -39,9 +39,9 @@ def calculate_earnings(num_shares, basis, ror_6m, ror_12m, tax_6m, tax_12m):
 
 def test_short_term_favored():
     inputs = _create_inputs()
-    # higher long term tax rates cause short term to be favored
-    inputs["current_state_ltcg_rate"] = .2
-    inputs["new_state_ltcg_rate"] = .2
+    # higher long term tax rates cause SHORT term to be favored
+    inputs["current_state_ltcg_tax_rate"] = .2
+    inputs["new_state_ltcg_tax_rate"] = .2
 
     results = optimize_scenario(**inputs, rate_of_return_6m=1.1, rate_of_return_12m=1.1)
     assert_results(results, stay_st=10.0)
@@ -57,9 +57,9 @@ def test_short_term_favored():
 
 def test_long_term_favored():
     inputs = _create_inputs()
-    # higher short term tax rates cause long term to be favored
-    inputs["current_state_stcg_rate"] = .2
-    inputs["new_state_stcg_rate"] = .2
+    # higher short term tax rates cause LONG term to be favored
+    inputs["current_state_stcg_tax_rate"] = .2
+    inputs["new_state_stcg_tax_rate"] = .2
 
     results = optimize_scenario(**inputs, rate_of_return_6m=1.1, rate_of_return_12m=1.1)
     # confirm it switches away from short term
@@ -71,12 +71,12 @@ def test_long_term_favored():
 def test_new_state_favored():
     inputs = _create_inputs()
     # higher current_state tax favors new_state
-    inputs["current_state_stcg_rate"] = .8
-    inputs["current_state_ltcg_rate"] = .9
+    inputs["current_state_stcg_tax_rate"] = .8
+    inputs["current_state_ltcg_tax_rate"] = .9
     moving_cost = inputs["moving_costs"]
 
     # test new state stcg first
-    inputs["new_state_ltcg_rate"] = .8
+    inputs["new_state_ltcg_tax_rate"] = .8
     results = optimize_scenario(**inputs, rate_of_return_6m=1.1, rate_of_return_12m=1.1)
     assert_results(results, go_st=10.0)
     assert_earnings(results,
@@ -85,8 +85,8 @@ def test_new_state_favored():
     assert results["is_moving"] == 1
 
     # test new state ltcg
-    inputs["new_state_stcg_rate"] = .8
-    inputs["new_state_ltcg_rate"] = .1
+    inputs["new_state_stcg_tax_rate"] = .8
+    inputs["new_state_ltcg_tax_rate"] = .1
     results = optimize_scenario(**inputs, rate_of_return_6m=1.1, rate_of_return_12m=1.1)
     assert_results(results, go_lt=10.0)
     assert_earnings(results,
@@ -107,15 +107,15 @@ def test_federal_taxes_current_state():
     inputs = _create_inputs()
 
     # federal taxes applied to short term
-    inputs["federal_stcg_rate"] = .1
-    inputs["federal_ltcg_rate"] = .3
+    inputs["federal_stcg_tax_rate"] = .1
+    inputs["federal_ltcg_tax_rate"] = .3
     results = optimize_scenario(**inputs, rate_of_return_6m=1.1, rate_of_return_12m=1.1)
     assert_results(results, stay_st=10.0)
     assert_earnings(results,
                     calculate_earnings(num_shares=10, basis=10, ror_6m=1.1, ror_12m=1.1, tax_6m=.2, tax_12m=.2))
 
     # federal taxes applied to long term
-    inputs["federal_stcg_rate"] = .5
+    inputs["federal_stcg_tax_rate"] = .5
     results = optimize_scenario(**inputs, rate_of_return_6m=1.1, rate_of_return_12m=1.1)
     assert_results(results, stay_lt=10.0)
     assert_earnings(results,
@@ -126,13 +126,13 @@ def test_federal_taxes_new_state():
     inputs = _create_inputs()
 
     # higher current_state tax favors new_state
-    inputs["current_state_stcg_rate"] = .9
-    inputs["current_state_ltcg_rate"] = .9
+    inputs["current_state_stcg_tax_rate"] = .9
+    inputs["current_state_ltcg_tax_rate"] = .9
     moving_cost = inputs["moving_costs"]
 
     # federal taxes applied to short term
-    inputs["federal_stcg_rate"] = .1
-    inputs["federal_ltcg_rate"] = .3
+    inputs["federal_stcg_tax_rate"] = .1
+    inputs["federal_ltcg_tax_rate"] = .3
     results = optimize_scenario(**inputs, rate_of_return_6m=1.1, rate_of_return_12m=1.1)
     assert_results(results, go_st=10.0)
     assert_earnings(results,
@@ -140,7 +140,7 @@ def test_federal_taxes_new_state():
                     - moving_cost)
 
     # federal taxes applied to long term
-    inputs["federal_stcg_rate"] = .5
+    inputs["federal_stcg_tax_rate"] = .5
     results = optimize_scenario(**inputs, rate_of_return_6m=1.1, rate_of_return_12m=1.1)
     assert_results(results, go_lt=10.0)
     assert_earnings(results,
@@ -151,8 +151,8 @@ def test_federal_taxes_new_state():
 def test_tax_applied_to_shares():
     inputs = _create_inputs()
 
-    inputs["marginal_ordinary_income_tax_rate"] = .5
+    inputs["rsu_witholding_rate"] = .5
     # break the tie between stcg and ltcg rates
-    inputs["current_state_ltcg_rate"] = .2
+    inputs["current_state_ltcg_tax_rate"] = .2
     results = optimize_scenario(**inputs, rate_of_return_6m=1.1, rate_of_return_12m=1.1, debug=True)
     assert_results(results, stay_st=5.0)

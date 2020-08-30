@@ -8,37 +8,37 @@ from sys import stdout
 from pulp import LpMaximize, LpProblem, LpStatus, LpVariable, PULP_CBC_CMD
 
 
-def ca_to_nv_tax_inputs():
-    return dict(marginal_ordinary_income_tax_rate=.22,
-                current_state_ltcg_rate=.13,
-                current_state_stcg_rate=.13,
-                new_state_ltcg_rate=0,
-                new_state_stcg_rate=0,
-                federal_ltcg_rate=.2,
-                federal_stcg_rate=.33)
+def ca_to_nv_tax_inputs() -> dict:
+    return dict(rsu_witholding_rate=.22,
+                current_state_ltcg_tax_rate=.13,
+                current_state_stcg_tax_rate=.13,
+                new_state_ltcg_tax_rate=0,
+                new_state_stcg_tax_rate=0,
+                federal_ltcg_tax_rate=.2,
+                federal_stcg_tax_rate=.33)
 
 
 def optimize_scenario(rate_of_return_6m: float,
                       rate_of_return_12m: float,
-                      marginal_ordinary_income_tax_rate: float,
-                      current_state_ltcg_rate: float,
-                      current_state_stcg_rate: float,
-                      new_state_ltcg_rate: float,
-                      new_state_stcg_rate: float,
-                      federal_ltcg_rate: float,
-                      federal_stcg_rate: float,
+                      rsu_witholding_rate: float,
+                      current_state_ltcg_tax_rate: float,
+                      current_state_stcg_tax_rate: float,
+                      new_state_ltcg_tax_rate: float,
+                      new_state_stcg_tax_rate: float,
+                      federal_ltcg_tax_rate: float,
+                      federal_stcg_tax_rate: float,
                       share_basis_price: float,
                       pre_tax_num_shares: float,
                       alternate_investment_rate_of_return: float,
                       moving_costs: float,
                       debug: bool = False) -> dict:
-    # derived inputs
-    post_tax_num_shares = pre_tax_num_shares * (1 - marginal_ordinary_income_tax_rate)
+    # Derived inputs
+    post_tax_num_shares = pre_tax_num_shares * (1 - rsu_witholding_rate)
 
-    # Create the model
+    # Create the linear progreamming model
     model = LpProblem(name="optimize_returns", sense=LpMaximize)
 
-    # optimize variables
+    # Variables that will be optimized in the model
     current_state_stcg_num_shares = LpVariable(name="current_state_stcg_num_shares", lowBound=0,
                                                upBound=post_tax_num_shares)
     current_state_ltcg_num_shares = LpVariable(name="current_state_ltcg_num_shares", lowBound=0,
@@ -47,7 +47,7 @@ def optimize_scenario(rate_of_return_6m: float,
     new_state_ltcg_num_shares = LpVariable(name="new_state_ltcg_num_shares", lowBound=0, upBound=post_tax_num_shares)
     is_moving = LpVariable(name="is_moving", lowBound=0, upBound=1, cat="Integer")
 
-    # calculations
+    # Calculations used in the constraints and objective functions below
     short_term_price = share_basis_price * rate_of_return_6m
     long_term_price = short_term_price * rate_of_return_12m
     current_state_stcg = current_state_stcg_num_shares * (short_term_price - share_basis_price)
@@ -64,25 +64,25 @@ def optimize_scenario(rate_of_return_6m: float,
                           + current_state_alternate_investment_gain + new_state_alternate_investment_gain
     post_tax_capital = post_tax_num_shares * share_basis_price
 
-    # constraints
+    # Constraints of the model
     model += (post_tax_num_shares == current_state_stcg_num_shares + current_state_ltcg_num_shares
               + new_state_stcg_num_shares + new_state_ltcg_num_shares,
               "total_shares_sum")
 
-    # make is_moving a flag dependent on whether we have new_state capital gains
+    # Makes is_moving a flag dependent on whether we have new_state capital gains
     model += (is_moving <= (new_state_stcg_num_shares + new_state_ltcg_num_shares),
               "new_state_shares_sold_dependency")
     model += ((new_state_stcg_num_shares + new_state_ltcg_num_shares) <= is_moving * post_tax_num_shares,
               "new_state_shares_sold_flag")
 
-    # objective function
+    # Objective function we are optimizing
     total_earnings = (post_tax_capital + total_capital_gains) \
-                     - current_state_stcg * (federal_stcg_rate + current_state_stcg_rate) \
-                     - current_state_ltcg * (federal_ltcg_rate + current_state_ltcg_rate) \
-                     - new_state_stcg * (federal_stcg_rate + new_state_stcg_rate) \
-                     - new_state_ltcg * (federal_ltcg_rate + new_state_ltcg_rate) \
-                     - current_state_alternate_investment_gain * (federal_stcg_rate + current_state_stcg_rate) \
-                     - new_state_alternate_investment_gain * (federal_stcg_rate + new_state_stcg_rate) \
+                     - current_state_stcg * (federal_stcg_tax_rate + current_state_stcg_tax_rate) \
+                     - current_state_ltcg * (federal_ltcg_tax_rate + current_state_ltcg_tax_rate) \
+                     - new_state_stcg * (federal_stcg_tax_rate + new_state_stcg_tax_rate) \
+                     - new_state_ltcg * (federal_ltcg_tax_rate + new_state_ltcg_tax_rate) \
+                     - current_state_alternate_investment_gain * (federal_stcg_tax_rate + current_state_stcg_tax_rate) \
+                     - new_state_alternate_investment_gain * (federal_stcg_tax_rate + new_state_stcg_tax_rate) \
                      - moving_costs * is_moving
     model += total_earnings
 
@@ -174,10 +174,10 @@ def main(share_basis_price: float,
                       + [percent / 100.0 for percent in range(115, 205, 5)]
 
     rows = []
-    for short_term_price in rates_of_return:
-        for long_term_price in rates_of_return:
-            rows.append(optimize_scenario(rate_of_return_6m=short_term_price,
-                                          rate_of_return_12m=long_term_price,
+    for rate_of_return_6m in rates_of_return:
+        for rate_of_return_12m in rates_of_return:
+            rows.append(optimize_scenario(rate_of_return_6m=rate_of_return_6m,
+                                          rate_of_return_12m=rate_of_return_12m,
                                           share_basis_price=share_basis_price,
                                           pre_tax_num_shares=pre_tax_num_shares,
                                           alternate_investment_rate_of_return=alternate_investment_rate_of_return,
