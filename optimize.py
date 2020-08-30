@@ -219,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument("--moving-costs", type=float, default=30000.0,
                         help="The amount of money it would take in expenses and tax savings to get you to move")
     parser.add_argument("--ipo-price", type=float, default=120.0,
-                        help="This is the bases from which the script will calculate capital gains")
+                        help="This is the basis from which the script will calculate capital gains")
     parser.add_argument("--interest-rate", type=float, default=1.07,
                         help="This is the rate of return that you expect from "
                              "selling your shares and investing elsewhere")
