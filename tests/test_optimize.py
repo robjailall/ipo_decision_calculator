@@ -148,7 +148,7 @@ def test_federal_taxes_new_state():
                     - moving_cost)
 
 
-def test_tax_applied_to_shares():
+def test_withholding_applied_to_shares():
     inputs = _create_inputs()
 
     inputs["rsu_witholding_rate"] = .5

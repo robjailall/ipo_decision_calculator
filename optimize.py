@@ -33,15 +33,15 @@ def optimize_scenario(rate_of_return_6m: float,
                       moving_costs: float,
                       debug: bool = False) -> dict:
     """
-    This is the meat of the script that calculates the optimal number of shares to sell for short and long term
-    and in the current or new state. It models this as a linear programming problem, which finds the variably values
-    that maximize the objective function given constraints.
+    This is the meat of the script that calculates the optimal number of shares to sell for short and long term tax
+    rates and in your current or new state. It models this as a linear programming problem, which finds the variable
+    values that maximize the objective function given constraints.
     """
 
     # Derived inputs
     post_tax_num_shares = pre_tax_num_shares * (1 - rsu_witholding_rate)
 
-    # Create the linear progreamming model
+    # Create the linear programming model
     model = LpProblem(name="optimize_returns", sense=LpMaximize)
 
     # Variables that will be optimized in the model
@@ -221,7 +221,8 @@ if __name__ == "__main__":
     parser.add_argument("--ipo-price", type=float, default=120.0,
                         help="This is the bases from which the script will calculate capital gains")
     parser.add_argument("--interest-rate", type=float, default=1.07,
-                        help="This is the rate of return that you expect from selling your shares and investing elsewhere")
+                        help="This is the rate of return that you expect from "
+                             "selling your shares and investing elsewhere")
 
     args = parser.parse_args()
     main(debug=args.debug,
