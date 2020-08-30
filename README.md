@@ -55,7 +55,7 @@ The script will produce two tab-separated files. The `heatmap.tsv` is likely the
 
 ![Heatmap of Decisions](https://github.com/robjailall/ipo_decision_calculator/blob/master/sample_heatmap_output.png?raw=true)
 
-This google spreadsheet uses conditional formatting to highlight the different decisions. The numbers in the table body are the total amount of money after all taxes you'l have left at the end of the year. Each cell also has the decision for that situation (these are hidden in the screenshot).
+This google spreadsheet uses conditional formatting to highlight the different decisions. The numbers in the table body are the total amount of money after all taxes you'll have left at the end of the year. Each cell also has the decision for that situation (these are hidden in the screenshot).
 
 For example, if your IPO shares appreciate 6% in the first six months and 7% in the second six months, the script recommends (dark green) you stay in your current state but sell you shares after 12 months to get the long term tax rates.
 
