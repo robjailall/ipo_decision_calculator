@@ -41,7 +41,7 @@ optional arguments:
                         The amount of money it would take in expenses and tax
                         savings to get you to move
   --ipo-price IPO_PRICE
-                        This is the bases from which the script will calculate
+                        This is the basis from which the script will calculate
                         capital gains
   --interest-rate INTEREST_RATE
                         This is the rate of return that you expect from
