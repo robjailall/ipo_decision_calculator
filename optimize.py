@@ -32,6 +32,12 @@ def optimize_scenario(rate_of_return_6m: float,
                       alternate_investment_rate_of_return: float,
                       moving_costs: float,
                       debug: bool = False) -> dict:
+    """
+    This is the meat of the script that calculates the optimal number of shares to sell for short and long term
+    and in the current or new state. It models this as a linear programming problem, which finds the variably values
+    that maximize the objective function given constraints.
+    """
+
     # Derived inputs
     post_tax_num_shares = pre_tax_num_shares * (1 - rsu_witholding_rate)
 
@@ -115,7 +121,7 @@ def optimize_scenario(rate_of_return_6m: float,
     return results
 
 
-def print_results_csv(rowdicts: typing.List[dict], f: typing.IO = stdout):
+def print_results_tsv(rowdicts: typing.List[dict], f: typing.IO = stdout):
     writer = DictWriter(f=f,
                         extrasaction="ignore",
                         delimiter="\t",
@@ -133,7 +139,10 @@ def print_results_csv(rowdicts: typing.List[dict], f: typing.IO = stdout):
     writer.writerows(rowdicts)
 
 
-def _get_row_label(row: dict) -> str:
+def _format_heatmap_cell(row: dict) -> str:
+    """
+    Formats the output of each cell in the heatmap
+    """
     key_map = {"current_state_stcg_num_shares": "stay st",
                "current_state_ltcg_num_shares": "stay lt",
                "new_state_stcg_num_shares": "go st",
@@ -147,7 +156,7 @@ def print_heat_map(rowdicts: typing.List[dict], short_term_rates_of_return: typi
                    long_term_rates_of_return: typing.List[float], f: typing.IO = stdout):
     results_by_prices = {}
     for row in rowdicts:
-        results_by_prices[(row["rate_of_return_6m"], row["rate_of_return_12m"])] = _get_row_label(row)
+        results_by_prices[(row["rate_of_return_6m"], row["rate_of_return_12m"])] = _format_heatmap_cell(row)
 
     header = ["First 6m Rate of Return"] + list(map(str, long_term_rates_of_return))
     data = []
@@ -169,6 +178,9 @@ def main(share_basis_price: float,
          moving_costs: float,
          debug: bool = False,
          output_dir: str = None):
+    """
+    Produces all of the data for the heatmap and outputs it
+    """
     rates_of_return = [percent / 100.0 for percent in range(80, 105, 5)] \
                       + [percent / 100.0 for percent in range(100, 111, 1)] \
                       + [percent / 100.0 for percent in range(115, 205, 5)]
@@ -190,7 +202,7 @@ def main(share_basis_price: float,
             break
 
     with open(file="{}/ipo_data.tsv".format(output_dir) if output_dir else "/dev/stdout", mode="w") as f:
-        print_results_csv(rowdicts=rows, f=f)
+        print_results_tsv(rowdicts=rows, f=f)
 
     with open(file="{}/heatmap.tsv".format(output_dir) if output_dir else "/dev/stdout", mode="w") as f:
         print_heat_map(rowdicts=rows,
