@@ -181,7 +181,7 @@ def main(share_basis_price: float,
     """
     Produces all of the data for the heatmap and outputs it
     """
-    rates_of_return = [percent / 100.0 for percent in range(80, 105, 5)] \
+    rates_of_return = [percent / 100.0 for percent in range(80, 100, 5)] \
                       + [percent / 100.0 for percent in range(100, 111, 1)] \
                       + [percent / 100.0 for percent in range(115, 205, 5)]
 
