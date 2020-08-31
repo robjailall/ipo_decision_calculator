@@ -59,6 +59,8 @@ This google spreadsheet uses conditional formatting to highlight the different d
 
 For example, if your IPO shares appreciate 6% in the first six months and 7% in the second six months, the script recommends (dark green) you stay in your current state but sell you shares after 12 months to get the long term tax rates.
 
+You can copy the [spreadsheet above](https://docs.google.com/spreadsheets/d/1Ykc5oWbdz5rBu1oDVQQPyoOz9N3oLNhkHTdKZGxUbkw/edit?usp=sharing) and paste your heatmap data in to visualize it better.
+
 ## Customization
 
 The command line arguments cover the inputs that are likely specific to each individual. If you want to change the tax rates, look at the function `ca_to_nv_tax_inputs` in **optimize.py** as an example.
