@@ -36,6 +36,26 @@ def optimize_scenario(rate_of_return_6m: float,
     This is the meat of the script that calculates the optimal number of shares to sell for short and long term tax
     rates and in your current or new state. It models this as a linear programming problem, which finds the variable
     values that maximize the objective function given constraints.
+
+    :param rate_of_return_6m: The 6-month rate of return for your shares for the first six months after IPO
+    :param rate_of_return_12m: The 6-month rate of return for your shares for the second six months after IPO
+    :param rsu_witholding_rate: How many of your vested shares are withheld for taxes
+        (typically, companies withhold 22 percent)
+    :param current_state_ltcg_tax_rate: The long term capital gains tax rate of your current state
+        (if no separate rate exists, you likely should use your marginal state income tax rate)
+    :param current_state_stcg_tax_rate: The short term capital gains tax rate of you current state
+    :param new_state_ltcg_tax_rate: The long term capital gains tax rate of you prospective new state
+    :param new_state_stcg_tax_rate: The short term capital gains tax rate of you prospective new state
+    :param federal_ltcg_tax_rate: The federal long term capital gains tax rate for your shares
+    :param federal_stcg_tax_rate: The federal short term capital gains tax rate for your shares
+    :param share_basis_price: The cost basis of your stock grant, likely the IPO price
+    :param pre_tax_num_shares: Your vested shares that are becoming liquid through IPO
+    :param alternate_investment_rate_of_return: If you sell your shares at 6 months, the rate of return you expect from
+        investing those proceeds elsewhere
+    :param moving_costs: How much more moving to the new state must save you to make it worthwhile to move. Can be
+        actual expenses or a reasonable margin
+    :param debug: Prints out more info about this optimization
+    :return: A dictionary with the parameters of the optimal solution
     """
 
     # Derived inputs
